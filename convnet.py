@@ -21,9 +21,10 @@ from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.optimizers import Adam
 
-00
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 
 def conv_model():
     model = Sequential()
@@ -39,16 +40,22 @@ def conv_model():
     return model
 
 
-def main():
+def main(grouped=False):
     # prepare the dataset
-    X, Y, x_val, y_val = load_dataset(as_matrix=(1, 7, 3))
 
+    if grouped:
+        dataset = load_dataset(as_matrix=(1, 7, 3), group_by_era=True)
+        train_set = dataset['training']
+    else:
+        X, Y, x_val, y_val = load_dataset(as_matrix=(1, 7, 3))
 
+    X, Y = train_set[0]
+   
     # train the model
     model = conv_model()
     tb_callback = keras.callbacks.TensorBoard(log_dir='./dump', histogram_freq=0,  
           write_graph=True, write_images=True)
-    model.fit(X, Y, epochs=32, batch_size=32,  callbacks=[tb_callback])
+    model.fit(X, Y, epochs=100, batch_size=10,  callbacks=[tb_callback])
 
 
-main()
+main(True)
